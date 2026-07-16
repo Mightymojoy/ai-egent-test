@@ -1,0 +1,5 @@
+{
+  "baseToken": "你的飞书Base Token",
+  "tableId": "你的飞书Table ID",
+  "port": 4999
+}

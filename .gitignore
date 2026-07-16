@@ -1,0 +1,4 @@
+.workbuddy/
+config.json
+*.log
+.exam_tmp_*.json
