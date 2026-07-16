@@ -718,10 +718,9 @@ const ANSWERS = {
   q11: 'F', q12: 'F', q13: 'T', q14: 'F', q15: 'F',
 };
 
-// ========== 后端地址配置 ==========
-// 部署到 GitHub Pages 时，设为空则仅本地判分，不同步飞书
-// 本地运行后端服务时，设为后端地址（如 http://localhost:4999）
-const BACKEND_URL = '';
+// ========== Vercel API 地址 ==========
+// 部署后改为实际的 Vercel 地址
+const BACKEND_URL = 'https://ai-egent-test.vercel.app';
 
 // 填空题答案（同义答案均认可）
 const FILL_ANSWERS = {
@@ -866,13 +865,19 @@ async function submitExam() {
   // 提交到后端写入飞书
   if (BACKEND_URL) {
     try {
-      const resp = await fetch(BACKEND_URL + '/api/submit', {
+      const resp = await fetch(BACKEND_URL + '/api/submit-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result),
+        body: JSON.stringify({
+          name: result.name,
+          dept: result.dept,
+          totalScore: result.totalScore,
+          rating: result.rating,
+          detail: result.details || result.suggestion
+        }),
       });
       const data = await resp.json();
-      if (data.ok) {
+      if (data.code === 0) {
         document.getElementById('syncStatus').textContent = '✅ 成绩已同步到飞书';
       } else {
         document.getElementById('syncStatus').textContent = '⚠️ 成绩同步失败，请联系管理员';
