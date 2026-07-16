@@ -718,6 +718,11 @@ const ANSWERS = {
   q11: 'F', q12: 'F', q13: 'T', q14: 'F', q15: 'F',
 };
 
+// ========== 后端地址配置 ==========
+// 部署到 GitHub Pages 时，设为空则仅本地判分，不同步飞书
+// 本地运行后端服务时，设为后端地址（如 http://localhost:4999）
+const BACKEND_URL = '';
+
 // 填空题答案（同义答案均认可）
 const FILL_ANSWERS = {
   q16: ['思考', '推理', 'Thinking', 'thinking'],
@@ -859,20 +864,24 @@ async function submitExam() {
   showResult(result);
 
   // 提交到后端写入飞书
-  try {
-    const resp = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result),
-    });
-    const data = await resp.json();
-    if (data.ok) {
-      document.getElementById('syncStatus').textContent = '✅ 成绩已同步到飞书';
-    } else {
-      document.getElementById('syncStatus').textContent = '⚠️ 成绩同步失败，请联系管理员';
+  if (BACKEND_URL) {
+    try {
+      const resp = await fetch(BACKEND_URL + '/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result),
+      });
+      const data = await resp.json();
+      if (data.ok) {
+        document.getElementById('syncStatus').textContent = '✅ 成绩已同步到飞书';
+      } else {
+        document.getElementById('syncStatus').textContent = '⚠️ 成绩同步失败，请联系管理员';
+      }
+    } catch (e) {
+      document.getElementById('syncStatus').textContent = '⚠️ 同步失败（后端未连接）';
     }
-  } catch (e) {
-    document.getElementById('syncStatus').textContent = '⚠️ 同步失败（后端未启动）';
+  } else {
+    document.getElementById('syncStatus').textContent = '🔶 仅本地判分，成绩未同步';
   }
 
   btn.disabled = false;
